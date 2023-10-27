@@ -57,7 +57,7 @@ class Ball {
   constructor({ number, cueball }) {
     this.cue = number === 0;
     this.eight = number === 8;
-    this.stripes = number > 8;
+    this.listradas = number > 8;
     this.solids = number > 0 && number < 8;
     this.number = number;
     this.diameter = BALL_DI;
@@ -410,7 +410,7 @@ class Machine {
 class Player {
   constructor(number) {
     this.number = number;
-    this.stripes = false;
+    this.listradas = false;
     this.solids = false;
     this.points = 0;
   }
@@ -424,48 +424,48 @@ class Player {
   }
 
   get denomText() {
-    if (this.stripes) return 'Stripes';
-    if (this.solids) return 'Solids';
+    if (this.listradas) return 'listradas';
+    if (this.solids) return 'Sólidas';
     return '';
   }
 
   get invalidContactText() {
-    if (this.stripes) return `${this.nameText} did not hit a Stripe first.`;
-    if (this.solids) return `${this.nameText} did not hit a Solid first.`;
+    if (this.listradas) return `${this.nameText} Não acertou a listrada.`;
+    if (this.solids) return `${this.nameText} Não acertou a cor sólida.`;
   }
 
   get nameText() {
-    if (this.number === 1) return '<strong>You</strong>';
-    return '<strong>AI</strong>';
+    if (this.number === 1) return '<strong>Você</strong>';
+    return '<strong>IA</strong>';
   }
 
   get eightText() {
-    return `${this.nameText} Pocketed the Eight.`;
+    return `${this.nameText} Encaçapou a oito.`;
   }
 
   get scratchText() {
-    return `${this.nameText} Scratched!`;
+    return `${this.nameText} Arranhou!`;
   }
 
   get turnText() {
-    let txt = this.number === 1 ? 'Your' : 'AI\'s';
+    let txt = this.number === 1 ? 'Sua' : 'AI\'s';
     txt = `<strong>${txt}</strong>`;
-    txt += ' Turn ';
-    if (this.stripes || this.solids) txt += `(${this.denomText})`;
+    txt += ' Vez ';
+    if (this.listradas || this.solids) txt += `(${this.denomText})`;
     return txt;
   }
 
   get winText() {
-    if (this.number === 1) return '<strong>You</strong> Win!';
-    return '<strong>AI</strong> Wins!';
+    if (this.number === 1) return '<strong>Você</strong> Venceu!';
+    return '<strong>IA</strong> Venceu!';
   }
 
   get teamText() {
-    return `${this.nameText} is ${this.denomText}`;
+    return `${this.nameText} é ${this.denomText}`;
   }
 
-  assign(stripes) {
-    stripes ? this.stripes = true : this.solids = true;
+  assign(listradas) {
+    listradas ? this.listradas = true : this.solids = true;
   }
 
   score(count) {
@@ -707,7 +707,7 @@ class Canvas {
     this.context.fill();
     this.context.shadowColor = 'transparent';
 
-    if (ball.stripes) {
+    if (ball.listradas) {
       let s1 = PI * 0.15,
       e1 = PI - s1,
       s2 = PI * -0.15,
@@ -774,7 +774,7 @@ class Game {
     this.messages = [this.currentPlayer.turnText];
 
     this.pocketedThisTurn = [];
-    this.pocketedStripes = 0;
+    this.pocketedlistradas = 0;
     this.pocketedSolids = 0;
     this.placingCueball = true;
     this.ballIds.forEach(ballId => this.balls[ballId].reset());
@@ -827,9 +827,9 @@ class Game {
     this.pocketedThisTurn.push(ball);
     let x,
     y = VIEW_H - RETURN_H / 2;
-    if (ball.stripes) {
-      x = VIEW_W - this.pocketedStripes * (BALL_DI * 1.2) - RETURN_H * 0.5;
-      this.pocketedStripes++;
+    if (ball.listradas) {
+      x = VIEW_W - this.pocketedlistradas * (BALL_DI * 1.2) - RETURN_H * 0.5;
+      this.pocketedlistradas++;
     } else if (ball.solids) {
       x = this.pocketedSolids * (BALL_DI * 1.2) + RETURN_H * 0.5;
       this.pocketedSolids++;
@@ -934,7 +934,7 @@ class Game {
       let ball = balls.filter(b => !b.cue)[0];
       if (this.playersAssigned && !isCue && !isEight)
       if (
-      this.currentPlayer.stripes && !ball.stripes ||
+      this.currentPlayer.listradas && !ball.listradas ||
       this.currentPlayer.solids && !ball.solids)
       validFirstContact = false;
       this.firstContact = null;
@@ -942,28 +942,28 @@ class Game {
 
     // handling pocketed balls
     if (pocketed.length > 0) {
-      let stripes = pocketed.filter(b => b.stripes),
+      let listradas = pocketed.filter(b => b.listradas),
       solids = pocketed.filter(b => b.solids),
-      hasStripes = stripes.length > 0,
+      haslistradas = listradas.length > 0,
       hasSolids = solids.length > 0;
 
       // assigning players
       if (!this.playersAssigned) {
         // only assign if one kind of ball went in and cueball and eightball were not pocketed
-        if ((!hasStripes || !hasSolids) && !isCue && !isEight) {
-          this.currentPlayer.assign(hasStripes);
-          this.otherPlayer.assign(!hasStripes);
+        if ((!haslistradas || !hasSolids) && !isCue && !isEight) {
+          this.currentPlayer.assign(haslistradas);
+          this.otherPlayer.assign(!haslistradas);
           this.playersAssigned = true;
         }
       }
 
       // calculate scores
-      if (this.currentPlayer.stripes) {
-        this.currentPlayer.score(stripes.length);
+      if (this.currentPlayer.listradas) {
+        this.currentPlayer.score(listradas.length);
         this.otherPlayer.score(solids.length);
       } else if (this.currentPlayer.solids) {
         this.currentPlayer.score(solids.length);
-        this.otherPlayer.score(stripes.length);
+        this.otherPlayer.score(listradas.length);
       }
 
       // handling game over
@@ -980,7 +980,7 @@ class Game {
         this.switchTurns();
         // handling the wrong ball
       } else if (
-      !hasStripes && this.currentPlayer.stripes ||
+      !haslistradas && this.currentPlayer.listradas ||
       !hasSolids && this.currentPlayer.solids)
       {
         this.switchTurns();
@@ -1011,7 +1011,7 @@ class Game {
   handleGameOver() {
     this.gameOver = true;
     let $button = document.createElement('button');
-    $button.innerHTML = 'New Game';
+    $button.innerHTML = 'Novo Jogo';
     $button.addEventListener('click', () => {
       $button.remove();
       this.reset();
@@ -1132,8 +1132,8 @@ class Game {
     let balls = this.ballIds.map(id => this.balls[id]).filter(b => !b.pocketed);
     if (this.players[1].onEight) {
       balls = [this.eightball];
-    } else if (this.players[1].stripes) {
-      balls = balls.filter(b => b.stripes);
+    } else if (this.players[1].listradas) {
+      balls = balls.filter(b => b.listradas);
     } else if (this.players[1].solids) {
       balls = balls.filter(b => b.solids);
     } else {
